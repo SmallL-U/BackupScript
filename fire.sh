@@ -6,6 +6,12 @@ if [ -z "$BASH" ]; then
     exit 1
 fi
 
+# Check has pigz
+#if ! command -v pigz &> /dev/null; then
+#    echo "This script requires pigz but it's not installed. Please install it and try again." 1>&2
+#    exit 1
+#fi
+
 # Check current shell has exec permission
 if [ ! -x "$0" ]; then
     echo "This script must be run with exec permission." 1>&2

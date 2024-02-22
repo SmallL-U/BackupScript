@@ -37,7 +37,6 @@ read_string_map() {
     # Populate the array with values associated with the found keys
     for k in "${keys[@]}"; do
       map_key=${k//./_} # Replace . with _ in the key to make it a valid variable name
-      # shellcheck disable=SC2034
       map[$map_key]=$(read_config_value "$k") || return 1
     done
 }
