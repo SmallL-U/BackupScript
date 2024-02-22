@@ -7,10 +7,16 @@ if [ -z "$BASH" ]; then
 fi
 
 # Check has pigz
-#if ! command -v pigz &> /dev/null; then
-#    echo "This script requires pigz but it's not installed. Please install it and try again." 1>&2
-#    exit 1
-#fi
+if ! command -v pigz &> /dev/null; then
+    echo "This script requires pigz but it's not installed. Please install it and try again." 1>&2
+    exit 1
+fi
+
+# Check has jq
+if ! command -v jq &> /dev/null; then
+    echo "This script requires jq but it's not installed. Please install it and try again." 1>&2
+    exit 1
+fi
 
 # Check current shell has exec permission
 if [ ! -x "$0" ]; then
