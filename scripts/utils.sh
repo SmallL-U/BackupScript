@@ -20,13 +20,13 @@ read_config_value() {
     echo "$value"
 }
 
-# Function to read an array of strings from the config file, where each element starts with a specific key
-# The array elements are populated with values associated with the found keys
+# Function to read an array of string values for a given key prefix from the config file
+# The map elements are populated with values associated with the found keys
 # Arguments:
-#   arr - the name of the array variable to populate
+#   map - the name of the map variable to populate
 #   key - the prefix of keys to search for in the config file
-read_string_arr() {
-    declare -n arr=$1  # Declare a name ref variable to indirectly reference the array provided by the caller
+read_string_map() {
+    declare -n map=$1  # Declare a name ref variable to indirectly reference the map provided by the caller
     key=$2
     if [ ! -f "$CONFIG_FILE" ]; then
         echo "Config file does not exist" >&2
@@ -36,10 +36,11 @@ read_string_arr() {
     mapfile -t keys < <(grep -v '^[[:space:]]*#' "$CONFIG_FILE" | grep "^$key" | cut -d'=' -f1)
     # Populate the array with values associated with the found keys
     for k in "${keys[@]}"; do
-      mapfile -t -O "${#arr[@]}" arr < <(read_config_value "$k")
+      map_key=${k//./_} # Replace . with _ in the key to make it a valid variable name
+      map[$map_key]=$(read_config_value "$k") || return 1
     done
     # Empty check
-    if [ ${#arr[@]} -eq 0 ]; then
+    if [ ${#map[@]} -eq 0 ]; then
       echo "No keys found in config file" >&2
       return 1
     fi
