@@ -4,7 +4,7 @@
 if [ "$interrupt_enable" == "true" ]; then
   info "Docker interrupt is stopping..."
   # Stop all containers with the specified keywords
-  info docker ps -a --format "{{.Names}}" | grep "$(printf -- "-e %s " "${interrupt_keywords[@]}")" | xargs docker start
+  docker ps -a --format "{{.Names}}" | grep "$(printf -- "-e %s " "${interrupt_keywords[@]}")" | xargs docker start
   info "Docker interrupt is stopped"
 else
   info "Docker interrupt is disabled, canceled stop interrupt"
@@ -13,7 +13,7 @@ fi
 # Copy tmp sources to local target
 for key in "${!local_targets[@]}"; do
   info "Copying tmp source: $key to local target: ${local_targets[$key]}"
-  info cp -r "${tmp_dir}" "${local_targets[$key]}" || { error "Failed to copy tmp source: $key"; continue; }
+  cp -r "${tmp_dir}" "${local_targets[$key]}" || { error "Failed to copy tmp source: $key"; continue; }
   info "Tmp source: $key is copied to local target: ${local_targets[$key]}"
 done
 
@@ -37,7 +37,7 @@ done
 
 # Cleanup tmp tar.gz
 info "Cleaning up tmp tar.gz"
-info rm "${tmp_dir}/*.tar.gz" || { error "Failed to cleanup tmp tar.gz"; }
+rm "${tmp_dir}/*.tar.gz" || { error "Failed to cleanup tmp tar.gz"; }
 info "Tmp tar.gz is cleaned up"
 
 # Combine a target arr
