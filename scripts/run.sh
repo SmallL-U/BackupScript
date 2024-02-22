@@ -22,9 +22,7 @@ for key in "${!remote_sources[@]}"; do
   info "Downloading remote source: $key"
   mkdir -p "${tmp_dir}/${key}"
   rclone copy "${remote_sources[$key]}" "${tmp_dir}/${key}" || { error "Failed to download tmp remote source: $key"; continue; }
-  info "Archiving remote source: $key"
   tar -I pigz -cPf "${tmp_dir}/${key}-${current_date}.tar.gz" -C "${tmp_dir}" "${key}" || { error "Failed to archive tmp remote source: $key"; continue; }
-  info "Removing remote source: $key"
   rm -rf "${tmp_dir}/${key}" || { error "Failed to remove tmp remote source: $key"; continue;}
   info "Remote source: $key is downloaded and archived"
 done

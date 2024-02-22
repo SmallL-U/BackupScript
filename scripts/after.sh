@@ -40,7 +40,7 @@ done
 
 # Cleanup tmp tar.gz
 info "Cleaning up tmp tar.gz"
-rm "${tmp_dir}"/*.tar.gz || { error "Failed to cleanup tmp tar.gz"; }
+rm -f "${tmp_dir}"/*.tar.gz || { error "Failed to cleanup tmp tar.gz"; }
 info "Tmp tar.gz is cleaned up"
 
 # Cleanup expired sources from target

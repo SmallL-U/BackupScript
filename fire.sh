@@ -33,6 +33,9 @@ fi
 # Change the working directory to the directory of the script
 cd "$(dirname "$0")" || exit
 
+# Mkdir logs
+mkdir -p logs
+
 # Open a subshell to ensure env isolation
 (
 # Execute the env.sh script
@@ -45,4 +48,7 @@ cd "$(dirname "$0")" || exit
 . ./scripts/run.sh || exit $?
 # Execute the after.sh script
 . ./scripts/after.sh || exit $?
-)
+) >> logs/"$(date +"%Y-%m-%d")".log 2>&1
+
+# Cleanup logs 30 days ago
+find logs/ -type f -name "*.log" -mtime +30 -exec rm -f {} \;
