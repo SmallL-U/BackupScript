@@ -4,6 +4,7 @@
 enable=$(read_boolean 'enable') || exit 1
 if [ "$enable" == "false" ]; then
     error "Backup is disabled" >&2
+    exit 1
 fi
 
 # Declare config variables
