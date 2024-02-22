@@ -37,7 +37,7 @@ done
 
 # Cleanup tmp tar.gz
 info "Cleaning up tmp tar.gz"
-rm "${tmp_dir}/*.tar.gz" || { error "Failed to cleanup tmp tar.gz"; }
+rm "${tmp_dir}"/*.tar.gz || { error "Failed to cleanup tmp tar.gz"; }
 info "Tmp tar.gz is cleaned up"
 
 # Combine a target arr
