@@ -20,7 +20,18 @@ done
 # Upload tmp sources to remote target
 for key in "${!remote_targets[@]}"; do
   info "Uploading tmp source: $key to remote target: ${remote_targets[$key]}"
-  info ls "${tmp_dir}" | grep tar.gz | xargs -I {} rclone copy "${tmp_dir}/{}" "${remote_targets[$key]}" || { error "Failed to upload tmp source: $key"; continue; }
+  for file in "${tmp_dir}"/*.tar.gz; do
+    if [[ -f "$file" ]]; then
+      basename=$(basename "$file")
+      info "Uploading tmp source: $basename"
+      if rclone copy "$file" "${remote_targets[$key]}"; then
+        info "Tmp source: $basename is uploaded to remote target: ${remote_targets[$key]}"
+      else
+        error "Failed to upload tmp source: $key"
+        continue
+      fi
+    fi
+  done
   info "Tmp source: $key is uploaded to remote target: ${remote_targets[$key]}"
 done
 
@@ -43,6 +54,8 @@ info "Combined target arr"
 for target in "${target_arr[@]}"; do
   info "Cleaning up expired sources from target: $target"
   rclone lsjson "${target}" | jq -r '.[] | select(.ModTime < "'"$cleanup_date"'") | .Path' | while read -r file; do
+    # Skip empty line
+    [ -z "$file" ] && continue
     info "Cleaning up expired source: $file"
     rclone delete "${target}/${file}" || { error "Failed to cleanup expired sources from target: $target"; continue; }
   done
