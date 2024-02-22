@@ -10,6 +10,9 @@ else
   info "Docker interrupt is disabled, canceled start interrupt"
 fi
 
+# Mkdir tmp dir
+mkdir -p "${tmp_dir}"
+
 # Archive local sources
 for key in "${!local_sources[@]}"; do
   info "Archiving local source: $key"
