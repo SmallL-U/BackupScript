@@ -10,36 +10,6 @@ else
   info "Docker interrupt is disabled, canceled stop interrupt"
 fi
 
-# Copy tmp sources to local target
-for key in "${!local_targets[@]}"; do
-  info "Copying tmp source: $key to local target: ${local_targets[$key]}"
-  cp -r "${tmp_dir}" "${local_targets[$key]}" || { error "Failed to copy tmp source: $key"; continue; }
-  info "Tmp source: $key is copied to local target: ${local_targets[$key]}"
-done
-
-# Upload tmp sources to remote target
-for key in "${!remote_targets[@]}"; do
-  info "Uploading tmp source: $key to remote target: ${remote_targets[$key]}"
-  for file in "${tmp_dir}"/*.tar.gz; do
-    if [[ -f "$file" ]]; then
-      basename=$(basename "$file")
-      info "Uploading tmp source: $basename"
-      if rclone copy "$file" "${remote_targets[$key]}"; then
-        info "Tmp source: $basename is uploaded to remote target: ${remote_targets[$key]}"
-      else
-        error "Failed to upload tmp source: $key"
-        continue
-      fi
-    fi
-  done
-  info "Tmp source: $key is uploaded to remote target: ${remote_targets[$key]}"
-done
-
-# Cleanup tmp tar.gz
-info "Cleaning up tmp tar.gz"
-rm "${tmp_dir}"/*.tar.gz || { error "Failed to cleanup tmp tar.gz"; }
-info "Tmp tar.gz is cleaned up"
-
 # Combine a target arr
 target_arr=()
 for key in "${!local_targets[@]}"; do
@@ -49,6 +19,29 @@ for key in "${!remote_targets[@]}"; do
   target_arr+=("${remote_targets[$key]}")
 done
 info "Combined target arr"
+
+# Copy tmp source to target
+for target in "${target_arr[@]}"; do
+  info "Copying tmp source to target: $target"
+  for file in "${tmp_dir}"/*.tar.gz; do
+    if [[ -f "$file" ]]; then
+      basename=$(basename "$file")
+      info "Copying tmp source: $basename"
+      if rclone copy "$file" "${target}"; then
+        info "Tmp source: $basename is copied to target: $target"
+      else
+        error "Failed to copy tmp source: $basename"
+        continue
+      fi
+    fi
+  done
+  info "Tmp source is copied to target: $target"
+done
+
+# Cleanup tmp tar.gz
+info "Cleaning up tmp tar.gz"
+rm "${tmp_dir}"/*.tar.gz || { error "Failed to cleanup tmp tar.gz"; }
+info "Tmp tar.gz is cleaned up"
 
 # Cleanup expired sources from target
 for target in "${target_arr[@]}"; do
