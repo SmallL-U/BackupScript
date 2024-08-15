@@ -9,6 +9,7 @@ fi
 
 # Declare config variables
 declare tmp_dir
+declare cleanup_min_file
 declare cleanup_date
 declare -A local_sources
 declare -A remote_sources
@@ -17,8 +18,10 @@ declare -A remote_targets
 declare interrupt_enable
 declare -A interrupt_keywords
 
-cleanup_date=$(date -d "$(read_string "cleanup.date" || exit 1)" -Iminutes) || exit 1
+
 tmp_dir=$(read_string "tmp_dir") || exit 1
+cleanup_min_file=$(read_integer "cleanup.min_file") || exit 1
+cleanup_date=$(date -d "$(read_string "cleanup.date" || exit 1)" -Iminutes) || exit 1
 read_string_map local_sources "source.local"
 read_string_map remote_sources "source.remote"
 read_string_map local_targets "target.local"
@@ -33,6 +36,7 @@ current_date=$(date "+%Y%m%d%H%M%S")
 
 # Print variables
 info "Loaded tmp_dir: $tmp_dir"
+info "Loaded cleanup_min_file: $cleanup_min_file"
 info "Loaded cleanup_date: $cleanup_date"
 for i in "${!local_sources[@]}"; do
     info "Loaded local_sources[$i]: ${local_sources[$i]}"

@@ -45,14 +45,43 @@ info "Tmp tar.gz is cleaned up"
 
 # Cleanup expired sources from target
 for target in "${target_arr[@]}"; do
+  info "Checking file count in target: $target"
+
+  # Fetch file list and count once, store in a variable
+  file_list=$(rclone lsjson "${target}")
+  initial_file_count=$(echo "$file_list" | jq '. | length')
+
+  if [[ "$initial_file_count" -lt "$cleanup_min_file" ]]; then
+    info "Skipped cleaning up expired sources from target: $target due to file count ($initial_file_count) is less than minimum required ($cleanup_min_file)"
+    continue
+  fi
   info "Cleaning up expired sources from target: $target"
-  rclone lsjson "${target}" | jq -r '.[] | select(.ModTime < "'"$cleanup_date"'") | .Path' | while read -r file; do
-    # Skip empty line
-    [ -z "$file" ] && continue
-    info "Cleaning up expired source: $file"
-    rclone delete "${target}/${file}" || { error "Failed to cleanup expired sources from target: $target"; continue; }
-  done
-  info "Expired sources are cleaned up from target: $target"
+  # Generate list of expired files, sorted by modification time
+  echo "$file_list" | jq -r --arg cleanup_date "$cleanup_date" '
+    map(select(.ModTime < $cleanup_date) | {Path, ModTime})
+    | sort_by(.ModTime)
+    | .[].Path' | {
+    # Initialize remaining file count
+    remaining_file_count="$initial_file_count"
+    while read -r file; do
+      # Skip empty line
+      [ -z "$file" ] && continue
+      # Check if remaining files meet the minimum required before deletion
+      if [[ "$remaining_file_count" -le "$cleanup_min_file" ]]; then
+        info "Stopped cleaning up expired sources from target: $target due to remaining file count ($remaining_file_count) is less than or equal to minimum required ($cleanup_min_file)"
+        break
+      fi
+      info "Cleaning up expired source: $file"
+      if rclone delete "${target}/${file}"; then
+        # Decrement count only if deletion is successful
+        ((--remaining_file_count))
+      else
+        error "Failed to cleanup expired sources from target: $target"
+        continue
+      fi
+    done
+    info "Expired sources are cleaned up from target: $target"
+  }
 done
 
 # Summary failed source
