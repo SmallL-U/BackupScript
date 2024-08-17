@@ -21,6 +21,7 @@ The backup process can be configured through the `backup.properties` file. Here 
 
 - `enable`: Whether the backup process is enabled.
 - `tmp_dir`: The directory for temporary files during the backup process.
+- `cleanup.min_file`: The minimum number of files to keep in the target directories.
 - `cleanup.date`: The date for cleanup. Files older than this date will be cleaned up.
 - `source.local.*`: The local sources to be backed up.
 - `source.remote.*`: The remote sources to be backed up.

@@ -21,6 +21,7 @@
 
 - `enable`：备份过程是否启用。
 - `tmp_dir`：备份过程中临时文件的目录。
+- `cleanup.min_file`：目标目录中要保留的最小文件数。
 - `cleanup.date`：清理日期。早于此日期的文件将被清理。
 - `source.local.*`：要备份的本地源。
 - `source.remote.*`：要备份的远程源。
